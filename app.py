@@ -201,6 +201,58 @@ for idx, row in gdf.iterrows():
 folium.LayerControl().add_to(m)
 
 # ====================================
+# LEGEND
+# ====================================
+
+legend_html = """
+<div style="
+position: fixed;
+bottom: 30px;
+left: 30px;
+width: 220px;
+z-index:9999;
+background-color:white;
+border:2px solid grey;
+border-radius:10px;
+padding:15px;
+font-size:14px;
+box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+">
+
+<b>Legend</b><br><br>
+
+<div style="
+width:18px;
+height:18px;
+background:#ff4d4d;
+display:inline-block;
+margin-right:8px;
+border:1px solid black;
+"></div>
+
+Kabupaten dengan data client
+<br><br>
+
+<div style="
+width:18px;
+height:18px;
+background:#d9d9d9;
+display:inline-block;
+margin-right:8px;
+border:1px solid gray;
+"></div>
+
+Kabupaten tanpa data
+<br><br>
+
+📍 Marker lokasi client
+
+</div>
+"""
+
+m.get_root().html.add_child(folium.Element(legend_html))
+
+# ====================================
 # SIMPAN
 # ====================================
 
