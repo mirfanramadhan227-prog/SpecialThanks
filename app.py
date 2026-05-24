@@ -2,6 +2,8 @@ import pandas as pd
 import geopandas as gpd
 import folium
 
+from folium.plugins import Search
+
 # ====================================
 # BACA EXCEL
 # ====================================
@@ -167,6 +169,17 @@ geojson = folium.GeoJson(
 )
 
 geojson.add_to(m)
+
+# ====================================
+# SEARCH
+# ====================================
+
+Search(
+    layer=geojson,
+    search_label="WADMKK",
+    placeholder="Cari Kabupaten...",
+    collapsed=False,
+).add_to(m)
 
 # ====================================
 # MARKER
