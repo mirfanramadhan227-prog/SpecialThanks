@@ -62,7 +62,17 @@ gdf["ADA_DATA"] = gdf["Client"].notnull()
 # FILTER DATA STRING
 # ====================================
 
-gdf["FILTER_COMMODITY"] = gdf["Commodity"].fillna("")
+gdf["FILTER_CLIENT"] = (
+    gdf["Client"]
+    .fillna("")
+    .astype(str)
+)
+
+gdf["FILTER_COMMODITY"] = (
+    gdf["Commodity"]
+    .fillna("")
+    .astype(str)
+)
 
 # ====================================
 # BUAT TITIK TENGAH
@@ -104,17 +114,12 @@ gdf["popup_html"] = (
 m = folium.Map(
     location=[-2.5, 118],
     zoom_start=5,
-    tiles=None
+    tiles="OpenStreetMap"
 )
 
 # ====================================
 # BASEMAPS
 # ====================================
-
-folium.TileLayer(
-    "OpenStreetMap",
-    name="OpenStreetMap"
-).add_to(m)
 
 folium.TileLayer(
     "CartoDB positron",
@@ -211,6 +216,8 @@ geojson = folium.GeoJson(
     style_function=style_function,
     highlight_function=highlight_function,
     tooltip=tooltip,
+    embed=True,
+
     popup=folium.GeoJsonPopup(
         fields=["popup_html"],
         aliases=[""],
@@ -321,8 +328,6 @@ m.get_root().html.add_child(folium.Element(legend_html))
 # STATISTIK DASHBOARD
 # ====================================
 
-total_kabupaten = len(gdf)
-
 kabupaten_aktif = gdf["ADA_DATA"].sum()
 
 total_client = df["Client"].nunique()
@@ -351,11 +356,6 @@ gap: 30px;
 ">
 
 <div>
-<b>Total Kabupaten</b><br>
-{total_kabupaten}
-</div>
-
-<div>
 <b>Kabupaten Aktif</b><br>
 {kabupaten_aktif}
 </div>
@@ -374,6 +374,17 @@ gap: 30px;
 """
 
 m.get_root().html.add_child(folium.Element(stats_html))
+
+# ====================================
+# DROPWON FILTER CLIENT
+# ====================================
+
+client_list = sorted(df["Client"].dropna().unique())
+
+client_options = ""
+
+for client in client_list:
+    client_options += f'<option value="{client}">{client}</option>'
 
 # ====================================
 # DROPDOWN FILTER COMMODITY
@@ -403,6 +414,22 @@ box-shadow:0 0 10px rgba(0,0,0,0.3);
 font-size:14px;
 '>
 
+<b>Filter Client</b><br><br>
+
+<select id="clientFilter"
+style="
+width:160px;
+padding:5px;
+">
+
+<option value="ALL">All Client</option>
+
+{client_options}
+
+</select>
+
+<br><br>
+
 <b>Filter Commodity</b><br><br>
 
 <select id="commodityFilter"
@@ -417,29 +444,44 @@ padding:5px;
 
 </select>
 
+<br><br>
+
+<button id="clearFilterBtn"
+style="
+width:120px;
+padding:6px;
+background:white;
+color:black;
+border:1px solid black;
+border-radius:5px;
+cursor:pointer;
+font-size:12px;
+font-weight:600;
+">
+Clear Filter
+</button>
+
 </div>
 
 <script>
 
 document
 .getElementById("commodityFilter")
-.addEventListener("change", function(e) {{
+.addEventListener("change", function() {{
 
-    let selected = e.target.value;
+    alert(
+        "Filter commodity akan kita upgrade di tahap berikutnya"
+    );
 
-    let layers = document.getElementsByClassName("leaflet-interactive");
+}});
 
-    for (let i = 0; i < layers.length; i++) {{
+document
+.getElementById("clearFilterBtn")
+.addEventListener("click", function() {{
 
-        let layer = layers[i];
+    document.getElementById("commodityFilter").value = "ALL";
 
-        let popup = layer.getAttribute("aria-label");
-
-        if(selected === "ALL") {{
-            layer.style.display = "";
-        }}
-
-    }}
+    document.getElementById("clientFilter").value = "ALL";
 
 }});
 
