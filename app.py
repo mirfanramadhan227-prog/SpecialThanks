@@ -89,20 +89,73 @@ gdf["lon"] = center.x
 
 gdf["popup_html"] = (
 
-    "<div style='font-size:13px;'>"
+    "<div style='"
+    "font-size:13px;"
+    "width:320px;"
+    "max-height:420px;"
+    "overflow:hidden;"
+    "font-family:Arial;"
+    "'>"
 
-    "<b>Kabupaten:</b> " +
-    gdf["WADMKK"].fillna("") +
+    # HEADER
+    "<div style='"
+    "font-size:18px;"
+    "font-weight:bold;"
+    "margin-bottom:12px;"
+    "color:#222;"
+    "'>"
+    + gdf["WADMKK"].fillna("")
+    + "</div>"
 
-    "<br><br>"
+    # CLIENT
+    "<div style='margin-bottom:14px;'>"
 
-    "<b>Client:</b><br>" +
-    gdf["Client"].fillna("-") +
+    "<div style='"
+    "font-weight:bold;"
+    "margin-bottom:6px;"
+    "font-size:14px;"
+    "'>"
+    "Client"
+    "</div>"
 
-    "<br><br>"
+    "<div style='"
+    "max-height:140px;"
+    "overflow-y:auto;"
+    "background:#f7f7f7;"
+    "padding:10px;"
+    "border-radius:8px;"
+    "line-height:1.5;"
+    "'>"
 
-    "<b>Commodity:</b><br>" +
-    gdf["Commodity"].fillna("-") +
+    + gdf["Client"].fillna("-")
+
+    + "</div>"
+    "</div>"
+
+    # COMMODITY
+    "<div>"
+
+    "<div style='"
+    "font-weight:bold;"
+    "margin-bottom:6px;"
+    "font-size:14px;"
+    "'>"
+    "Commodity"
+    "</div>"
+
+    "<div style='"
+    "max-height:140px;"
+    "overflow-y:auto;"
+    "background:#f7f7f7;"
+    "padding:10px;"
+    "border-radius:8px;"
+    "line-height:1.5;"
+    "'>"
+
+    + gdf["Commodity"].fillna("-")
+
+    + "</div>"
+    "</div>"
 
     "</div>"
 )
@@ -233,7 +286,7 @@ geojson = folium.GeoJson(
         aliases=[""],
         labels=False,
         parse_html=True,
-        max_width=350
+        max_width=380
     )
 )
 
@@ -539,21 +592,32 @@ style="
 position:fixed;
 bottom:180px;
 right:10px;
-
 z-index:9999;
-
 background:rgba(255,255,255,0.95);
-
 padding:12px;
-
 border-radius:12px;
-
 box-shadow:0 2px 10px rgba(0,0,0,0.25);
-
 font-family:Arial;
-
 width:220px;
+max-height:70vh;
+overflow-y:auto;
 ">
+
+<div id="kabupatenDetail"
+style="
+background:#f7f7f7;
+padding:15px;
+border-radius:12px;
+margin-top:0px;
+font-size:14px;
+line-height:1.6;
+">
+
+<b>Detail Kabupaten</b><br><br>
+
+Klik kabupaten pada peta
+
+</div>
 
 <h3 style="
 margin-top:0;
@@ -601,24 +665,218 @@ Kabupaten tanpa data
 
 <script>
 
+function resetLayerStyle(layer, props){{
+
+    layer.setStyle({{
+        fillColor:
+            props.ADA_DATA
+            ? "#ff8080"
+            : "#d9d9d9",
+
+        fillOpacity:
+            props.ADA_DATA
+            ? 0.55
+            : 0.08,
+
+        color:
+            props.ADA_DATA
+            ? "#b30000"
+            : "#999999",
+
+        weight:
+            props.ADA_DATA
+            ? 1.5
+            : 0.5
+    }});
+}}
+
+function applyFilters(){{
+
+    const selectedClient =
+        document
+        .getElementById("clientFilter")
+        .value
+        .toUpperCase();
+
+    const selectedCommodity =
+        document
+        .getElementById("commodityFilter")
+        .value
+        .toUpperCase();
+
+    const layers = Object.values(window);
+
+    layers.forEach(obj => {{
+
+        if(obj instanceof L.GeoJSON){{
+
+            obj.eachLayer(function(layer){{
+
+                if(layer.feature){{
+
+                    const props =
+                        layer.feature.properties;
+
+                    const client =
+                        String(props.FILTER_CLIENT || "")
+                        .toUpperCase();
+
+                    const commodity =
+                        String(props.FILTER_COMMODITY || "")
+                        .toUpperCase();
+
+                    const clientMatch =
+                        selectedClient === "ALL"
+                        || client.includes(selectedClient);
+
+                    const commodityMatch =
+                        selectedCommodity === "ALL"
+                        || commodity.includes(selectedCommodity);
+
+                    // MATCH
+                    if(clientMatch && commodityMatch){{
+
+                        resetLayerStyle(layer, props);
+
+                    }}
+
+                    // TIDAK MATCH
+                    else {{
+
+                        layer.setStyle({{
+                            fillColor:"#d9d9d9",
+                            fillOpacity:0.02,
+                            color:"#cccccc",
+                            weight:0.2
+                        }});
+                    }}
+
+                }}
+
+            }});
+
+        }}
+
+    }});
+}}
+
+let activeLayer = null;
+
+function setupLayerClick(){{
+
+    const layers = Object.values(window);
+
+    layers.forEach(obj => {{
+
+        if(obj instanceof L.GeoJSON){{
+
+            obj.eachLayer(function(layer){{
+
+                if(layer.feature){{
+
+                    layer.on("click", function(){{
+                        updateKabupatenDetail(
+                        layer.feature.properties
+                        );
+
+                        if(activeLayer){{
+
+                            resetLayerStyle(
+                                activeLayer,
+                                activeLayer.feature.properties
+                            );
+                        }}
+
+                        activeLayer = layer;
+
+                        layer.setStyle({{
+                            fillColor:"#00bfff",
+                            fillOpacity:0.9,
+                            color:"#000",
+                            weight:4
+                        }});
+
+                        updateKabupatenDetail(
+                            layer.feature.properties
+                        );
+
+                    }});
+
+                }}
+
+            }});
+
+        }}
+
+    }});
+
+}}
+
+function updateKabupatenDetail(props){{
+
+    const detailBox =
+        document.getElementById("kabupatenDetail");
+
+    detailBox.innerHTML = `
+        <b style="
+            font-size:18px;
+            display:block;
+            margin-bottom:8px;
+            ">
+            ${{props.WADMKK}}
+            </b>
+
+            <b>Provinsi:</b><br>
+            ${{props.WADMPR}}
+
+            <div style="height:10px;"></div>
+
+            <b>Client:</b>
+            <div style="
+            max-height:40px;
+            overflow-y:auto;
+            margin-top:3px;
+            margin-bottom:10px;
+            padding-right:6px;
+            ">
+
+        ${{props.FILTER_CLIENT || "-"}}
+        </div>
+
+        <b>Commodity:</b>
+
+            <div style="
+            max-height:60px;
+            overflow-y:auto;
+            margin-top:6px;
+            padding-right:6px;
+            ">
+
+        ${{props.FILTER_COMMODITY || "-"}}
+
+        </div>
+    `;
+}}
+
+document
+.getElementById("clientFilter")
+.addEventListener("change", applyFilters);
+
 document
 .getElementById("commodityFilter")
-.addEventListener("change", function() {{
-
-    alert(
-        "Filter commodity akan kita upgrade di tahap berikutnya"
-    );
-
-}});
+.addEventListener("change", applyFilters);
 
 document
 .getElementById("clearFilterBtn")
 .addEventListener("click", function() {{
 
-    document.getElementById("commodityFilter").value = "ALL";
+    document.getElementById("clientFilter").value =
+        "ALL";
 
-    document.getElementById("clientFilter").value = "ALL";
+    document.getElementById("commodityFilter").value =
+        "ALL";
 
+    applyFilters();
 }});
 
 const searchInput =
@@ -636,9 +894,9 @@ searchInput.addEventListener("keyup", function(e) {{
         if(obj instanceof L.GeoJSON){{
 
             obj.eachLayer(function(layer){{
-
+               
                 if(layer.feature){{
-
+                    
                     const props =
                         layer.feature.properties;
 
@@ -760,6 +1018,48 @@ toggleBtn.addEventListener("click", function() {{
     }}
 
 }});
+setTimeout(function(){{
+
+    setupLayerClick()
+
+}}, 1000);
+
+document.addEventListener("click", function(e){{
+
+    // Abaikan jika klik polygon
+    if(e.target.closest(".leaflet-interactive")){{
+        return;
+    }}
+
+    // Abaikan jika klik sidebar kanan
+    if(e.target.closest("#floatingLegend")){{
+        return;
+    }}
+
+    // Abaikan jika klik sidebar kiri
+    if(e.target.closest("#sidebar")){{
+        return;
+    }}
+
+    // Reset detail box
+    document.getElementById("kabupatenDetail").innerHTML = `
+        <b>Detail Kabupaten</b><br><br>
+        Klik kabupaten pada peta
+    `;
+
+    // Reset style layer aktif
+    if(activeLayer){{
+
+        resetLayerStyle(
+            activeLayer,
+            activeLayer.feature.properties
+        );
+
+        activeLayer = null;
+    }}
+
+}});
+
 </script>
 
 {{% endmacro %}}
