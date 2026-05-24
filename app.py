@@ -3,6 +3,7 @@ import geopandas as gpd
 import folium
 
 from folium.plugins import Search
+from folium.plugins import Fullscreen
 
 # ====================================
 # BACA EXCEL
@@ -96,6 +97,17 @@ m = folium.Map(
     zoom_start=5,
     tiles="OpenStreetMap"
 )
+
+# ====================================
+# FULLSCREEN BUTTON
+# ====================================
+
+Fullscreen(
+    position="topright",
+    title="Fullscreen",
+    title_cancel="Exit Fullscreen",
+    force_separate_button=True
+).add_to(m)
 
 # ====================================
 # STYLE NORMAL
