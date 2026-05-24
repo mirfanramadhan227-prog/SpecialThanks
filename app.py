@@ -18,10 +18,10 @@ df["kabupaten"] = df["kabupaten"].str.upper()
 grouped = df.groupby("kabupaten").agg({
 
     "Client": lambda x:
-        "<br>".join("- " + i for i in x.unique()),
+        "<br>".join("- " + str(i) for i in x.dropna().unique()),
 
     "Commodity": lambda x:
-        "<br>".join("- " + i for i in x.unique())
+        "<br>".join("- " + str(i) for i in x.dropna().unique())
 
 }).reset_index()
 
@@ -53,13 +53,37 @@ gdf = gdf.merge(
 gdf["ADA_DATA"] = gdf["Client"].notnull()
 
 # ====================================
-# BUAT TITIK TENGAH KABUPATEN
+# BUAT TITIK TENGAH
 # ====================================
 
 center = gdf.to_crs(epsg=3857).geometry.centroid.to_crs(gdf.crs)
 
 gdf["lat"] = center.y
 gdf["lon"] = center.x
+
+# ====================================
+# BUAT HTML POPUP
+# ====================================
+
+gdf["popup_html"] = (
+
+    "<div style='font-size:13px;'>"
+
+    "<b>Kabupaten:</b> " +
+    gdf["WADMKK"].fillna("") +
+
+    "<br><br>"
+
+    "<b>Client:</b><br>" +
+    gdf["Client"].fillna("-") +
+
+    "<br><br>"
+
+    "<b>Commodity:</b><br>" +
+    gdf["Commodity"].fillna("-") +
+
+    "</div>"
+)
 
 # ====================================
 # BUAT PETA
@@ -72,45 +96,41 @@ m = folium.Map(
 )
 
 # ====================================
-# STYLE WARNA
+# STYLE NORMAL
 # ====================================
 
 def style_function(feature):
 
-    if feature["properties"]["ADA_DATA"] == True:
+    if feature["properties"]["ADA_DATA"]:
+
         return {
-            "fillColor": "red",
-            "color": "black",
-            "weight": 1,
-            "fillOpacity": 0.7
+            "fillColor": "#ff8080",
+            "color": "#b30000",
+            "weight": 1.5,
+            "fillOpacity": 0.55,
         }
 
     else:
+
         return {
-            "fillColor": "gray",
-            "color": "gray",
+            "fillColor": "#d9d9d9",
+            "color": "#999999",
             "weight": 0.5,
-            "fillOpacity": 0.1
+            "fillOpacity": 0.08,
         }
 
 # ====================================
-# BUAT HTML POPUP CUSTOM
+# STYLE HOVER
 # ====================================
 
-gdf["popup_html"] = (
+def highlight_function(feature):
 
-    "<b>Kabupaten:</b> " + gdf["WADMKK"].fillna("") +
-
-    "<br><br>" +
-
-    "<b>Client:</b><br>" +
-    gdf["Client"].fillna("") +
-
-    "<br><br>" +
-
-    "<b>Commodity:</b><br>" +
-    gdf["Commodity"].fillna("")
-)
+    return {
+        "fillColor": "#ffff00",
+        "color": "#000000",
+        "weight": 4,
+        "fillOpacity": 0.95,
+    }
 
 # ====================================
 # TOOLTIP
@@ -118,67 +138,72 @@ gdf["popup_html"] = (
 
 tooltip = folium.GeoJsonTooltip(
     fields=["WADMKK"],
-    aliases=["Kabupaten:"]
+    aliases=["Kabupaten:"],
+    sticky=True
 )
 
 # ====================================
-# TAMBAHKAN KE PETA
+# GEOJSON
 # ====================================
 
 geojson = folium.GeoJson(
+
     gdf,
+
     style_function=style_function,
+
+    highlight_function=highlight_function,
+
     tooltip=tooltip,
+
     popup=folium.GeoJsonPopup(
-    fields=["popup_html"],
-    aliases=[""],
-    labels=False,
-    parse_html=True
-)
+        fields=["popup_html"],
+        aliases=[""],
+        labels=False,
+        parse_html=True,
+        max_width=350
+    )
+
 )
 
 geojson.add_to(m)
 
 # ====================================
-# TAMBAHKAN MARKER
+# MARKER
 # ====================================
 
 for idx, row in gdf.iterrows():
 
-    # hanya kabupaten yang ada data
-    if row["ADA_DATA"] == True:
+    if row["ADA_DATA"]:
 
-        popup_text = f"""
-        <b>Kabupaten:</b> {row['WADMKK']}<br><br>
+        folium.CircleMarker(
 
-        <b>Client:</b><br>
-        {row['Client']}<br><br>
-
-        <b>Commodity:</b><br>
-        {row['Commodity']}
-        """
-
-        folium.Marker(
             location=[row["lat"], row["lon"]],
 
-            popup=folium.Popup(
-                popup_text,
-                max_width=300
-            ),
+            radius=4,
 
-            tooltip=row["WADMKK"],
+            color="red",
 
-            icon=folium.Icon(
-                color="red",
-                icon="info-sign"
-            )
+            fill=True,
+
+            fill_color="red",
+
+            fill_opacity=1,
+
+            tooltip=row["WADMKK"]
 
         ).add_to(m)
 
 # ====================================
-# SIMPAN HTML
+# LAYER CONTROL
 # ====================================
 
-m.save("peta_persebaran.html")
+folium.LayerControl().add_to(m)
+
+# ====================================
+# SIMPAN
+# ====================================
+
+m.save("index.html")
 
 print("Peta persebaran berhasil dibuat!")
