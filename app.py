@@ -6,6 +6,8 @@ from folium.plugins import Search
 from folium.plugins import Fullscreen
 from folium.plugins import MiniMap
 
+from branca.element import Template, MacroElement
+
 # ====================================
 # BACA EXCEL
 # ====================================
@@ -55,6 +57,12 @@ gdf = gdf.merge(
 # ====================================
 
 gdf["ADA_DATA"] = gdf["Client"].notnull()
+
+# ====================================
+# FILTER DATA STRING
+# ====================================
+
+gdf["FILTER_COMMODITY"] = gdf["Commodity"].fillna("")
 
 # ====================================
 # BUAT TITIK TENGAH
@@ -198,15 +206,11 @@ tooltip = folium.GeoJsonTooltip(
 # ====================================
 
 geojson = folium.GeoJson(
-
     gdf,
-
+    name="commodity_layer",
     style_function=style_function,
-
     highlight_function=highlight_function,
-
     tooltip=tooltip,
-
     popup=folium.GeoJsonPopup(
         fields=["popup_html"],
         aliases=[""],
@@ -214,7 +218,6 @@ geojson = folium.GeoJson(
         parse_html=True,
         max_width=350
     )
-
 )
 
 geojson.add_to(m)
@@ -371,6 +374,84 @@ gap: 30px;
 """
 
 m.get_root().html.add_child(folium.Element(stats_html))
+
+# ====================================
+# DROPDOWN FILTER COMMODITY
+# ====================================
+
+commodity_list = sorted(df["Commodity"].dropna().unique())
+
+options = "".join([
+    f'<option value="{c}">{c}</option>'
+    for c in commodity_list
+])
+
+template = f"""
+{{% macro html(this, kwargs) %}}
+
+<div id='maplegend'
+style='
+position: fixed;
+top: 120px;
+left: 10px;
+z-index:9999;
+
+background-color:white;
+padding:10px;
+border-radius:8px;
+box-shadow:0 0 10px rgba(0,0,0,0.3);
+font-size:14px;
+'>
+
+<b>Filter Commodity</b><br><br>
+
+<select id="commodityFilter"
+style="
+width:160px;
+padding:5px;
+">
+
+<option value="ALL">All Commodity</option>
+
+{options}
+
+</select>
+
+</div>
+
+<script>
+
+document
+.getElementById("commodityFilter")
+.addEventListener("change", function(e) {{
+
+    let selected = e.target.value;
+
+    let layers = document.getElementsByClassName("leaflet-interactive");
+
+    for (let i = 0; i < layers.length; i++) {{
+
+        let layer = layers[i];
+
+        let popup = layer.getAttribute("aria-label");
+
+        if(selected === "ALL") {{
+            layer.style.display = "";
+        }}
+
+    }}
+
+}});
+
+</script>
+
+{{% endmacro %}}
+"""
+
+macro = MacroElement()
+macro._template = Template(template)
+
+m.get_root().add_child(macro)
 
 # ====================================
 # SIMPAN
