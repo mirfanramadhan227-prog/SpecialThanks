@@ -4,6 +4,7 @@ import folium
 
 from folium.plugins import Search
 from folium.plugins import Fullscreen
+from folium.plugins import MiniMap
 
 # ====================================
 # BACA EXCEL
@@ -95,8 +96,33 @@ gdf["popup_html"] = (
 m = folium.Map(
     location=[-2.5, 118],
     zoom_start=5,
-    tiles="OpenStreetMap"
+    tiles=None
 )
+
+# ====================================
+# BASEMAPS
+# ====================================
+
+folium.TileLayer(
+    "OpenStreetMap",
+    name="OpenStreetMap"
+).add_to(m)
+
+folium.TileLayer(
+    "CartoDB positron",
+    name="Light Mode"
+).add_to(m)
+
+folium.TileLayer(
+    "CartoDB dark_matter",
+    name="Dark Mode"
+).add_to(m)
+
+folium.TileLayer(
+    tiles="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    attr="OpenTopoMap",
+    name="Terrain"
+).add_to(m)
 
 # ====================================
 # FULLSCREEN BUTTON
@@ -108,6 +134,17 @@ Fullscreen(
     title_cancel="Exit Fullscreen",
     force_separate_button=True
 ).add_to(m)
+
+# ====================================
+# MINI MAP
+# ====================================
+
+minimap = MiniMap(
+    toggle_display=True,
+    position="bottomright"
+)
+
+m.add_child(minimap)
 
 # ====================================
 # STYLE NORMAL
@@ -276,6 +313,64 @@ Kabupaten tanpa data
 """
 
 m.get_root().html.add_child(folium.Element(legend_html))
+
+# ====================================
+# STATISTIK DASHBOARD
+# ====================================
+
+total_kabupaten = len(gdf)
+
+kabupaten_aktif = gdf["ADA_DATA"].sum()
+
+total_client = df["Client"].nunique()
+
+total_commodity = df["Commodity"].nunique()
+
+stats_html = f"""
+<div style="
+position: fixed;
+top: 10px;
+left: 50%;
+transform: translateX(-50%);
+z-index:9999;
+
+background-color: white;
+padding: 15px 25px;
+
+border-radius: 12px;
+box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+
+font-size: 14px;
+font-family: Arial;
+
+display: flex;
+gap: 30px;
+">
+
+<div>
+<b>Total Kabupaten</b><br>
+{total_kabupaten}
+</div>
+
+<div>
+<b>Kabupaten Aktif</b><br>
+{kabupaten_aktif}
+</div>
+
+<div>
+<b>Total Client</b><br>
+{total_client}
+</div>
+
+<div>
+<b>Total Commodity</b><br>
+{total_commodity}
+</div>
+
+</div>
+"""
+
+m.get_root().html.add_child(folium.Element(stats_html))
 
 # ====================================
 # SIMPAN
