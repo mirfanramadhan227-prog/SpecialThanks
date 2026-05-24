@@ -1,48 +1,70 @@
 # Interactive GIS Client Distribution Map Indonesia
 
-Interactive WebGIS project for visualizing client and commodity distribution across Indonesian regencies (kabupaten) using Python and GeoPandas.
+Interactive web-based GIS project for visualizing client and commodity distribution across Indonesia using Python, GeoPandas, Folium, and OpenStreetMap.
+
+---
+
+## Live Demo
+
+https://mirfanramadhan227-prog.github.io/indonesia-client-distribution-map/
+
+---
+
+## Preview
+
+![Preview](images/preview.png)
+
+---
 
 ## Features
-- Interactive web map using Folium
-- Indonesia regency boundary visualization
+
+- Interactive Indonesia GIS map
+- Kabupaten boundary visualization
 - Client distribution mapping
 - Commodity distribution mapping
-- Popup information for each kabupaten
-- GeoJSON spatial processing
-- Excel data integration
+- Interactive popup information
+- Dynamic spatial data processing
+- Web GIS deployment using GitHub Pages
+
+---
 
 ## Technologies Used
+
 - Python
 - GeoPandas
 - Pandas
 - Folium
 - OpenStreetMap
 - GeoJSON
+- GitHub Pages
+
+---
 
 ## Project Structure
 
 ```bash
-GIS Project/
-│
-├── app.py
-├── data.xlsx
-├── peta_persebaran.html
-├── attribute_table.xlsx
-├── GeoJson-Indonesia-38-Provinsi/
-│   └── Kabupaten/
-│       └── 38 Provinsi Indonesia - Kabupaten.json
+app.py
+data.xlsx
+index.html
+GeoJson-Indonesia-38-Provinsi/
+images/
+README.md
 ```
 
-## Output
-Interactive map displaying:
-- Kabupaten boundaries
-- Client locations
-- Commodity information
-- Interactive popup tables
+---
 
-## Data Source
-Indonesia administrative boundaries:
-https://github.com/ardian28/GeoJson-Indonesia-38-Provinsi
+## Workflow
+
+1. Read Excel client data
+2. Read Indonesia GeoJSON boundary
+3. Merge spatial and tabular data
+4. Generate interactive web GIS
+5. Deploy to GitHub Pages
+
+---
 
 ## Author
+
 Muhammad Irfan Ramadhan
+
+GIS • Mapping • Survey • Data Engineering
