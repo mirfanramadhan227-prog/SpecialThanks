@@ -6,13 +6,13 @@ Interactive web-based GIS project for visualizing client and commodity distribut
 
 ## Live Demo
 
-https://mirfanramadhan227-prog.github.io/indonesia-client-distribution-map/
+[![Live Demo](https://img.shields.io/badge/Live-Demo-green?style=for-the-badge)](https://mirfanramadhan227-prog.github.io/indonesia-client-distribution-map/)
 
 ---
 
-## Preview
+## Static Preview
 
-![Preview](images/preview.png)
+Interactive hover, popup, and zoom are available in the Live Demo above.
 
 ---
 
