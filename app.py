@@ -15,7 +15,12 @@ from branca.element import Template, MacroElement
 df = pd.read_excel("data.xlsx")
 
 # Rapikan huruf
-df["kabupaten"] = df["kabupaten"].str.upper()
+
+df["kabupaten"] = (
+    df["kabupaten"]
+    .str.upper()
+    .str.strip()
+)
 
 # ====================================
 # GROUP DATA PER KABUPATEN
@@ -24,10 +29,44 @@ df["kabupaten"] = df["kabupaten"].str.upper()
 grouped = df.groupby("kabupaten").agg({
 
     "Client": lambda x:
-        "<br>".join("- " + str(i) for i in x.dropna().unique()),
+        "<br>".join(
+
+            sorted(
+
+                set(
+
+                    str(i).strip()
+
+                    for i in x.dropna()
+
+                    if str(i).strip()
+
+                )
+
+            )
+
+        ),
 
     "Commodity": lambda x:
-        "<br>".join("- " + str(i) for i in x.dropna().unique())
+        "<br>".join(
+
+            sorted(
+
+                set(
+
+                    item.strip().upper()
+
+                    for value in x.dropna()
+
+                    for item in str(value).split(",")
+
+                    if item.strip()
+
+                )
+
+            )
+
+        )
 
 }).reset_index()
 
@@ -499,17 +538,23 @@ margin-bottom:20px;
 
 <div style="margin-bottom:10px;">
 <b>Kabupaten Aktif</b><br>
+<span id="kpiKabupaten">
 {kabupaten_aktif}
+</span>
 </div>
 
 <div style="margin-bottom:10px;">
 <b>Total Client</b><br>
+<span id="kpiClient">
 {total_client}
+</span>
 </div>
 
 <div>
 <b>Total Commodity</b><br>
+<span id="kpiCommodity">
 {total_commodity}
+</span>
 </div>
 
 </div>
@@ -603,22 +648,6 @@ max-height:70vh;
 overflow-y:auto;
 ">
 
-<div id="kabupatenDetail"
-style="
-background:#f7f7f7;
-padding:15px;
-border-radius:12px;
-margin-top:0px;
-font-size:14px;
-line-height:1.6;
-">
-
-<b>Detail Kabupaten</b><br><br>
-
-Klik kabupaten pada peta
-
-</div>
-
 <h3 style="
 margin-top:0;
 margin-bottom:12px;
@@ -690,6 +719,127 @@ function resetLayerStyle(layer, props){{
     }});
 }}
 
+function updateKPI(){{
+
+    const selectedClient =
+        document
+        .getElementById("clientFilter")
+        .value
+        .toUpperCase();
+
+    const selectedCommodity =
+        document
+        .getElementById("commodityFilter")
+        .value
+        .toUpperCase();
+
+    const layers = Object.values(window);
+
+    let activeKabupaten = 0;
+
+    const clientSet = new Set();
+
+    const commoditySet = new Set();
+
+    layers.forEach(obj => {{
+
+    if(obj instanceof L.GeoJSON){{
+
+        obj.eachLayer(function(layer){{
+
+            if(layer.feature){{
+
+                const props =
+                    layer.feature.properties;
+
+                const client =
+                    String(props.FILTER_CLIENT || "")
+                    .toUpperCase();
+
+                const commodity =
+                    String(props.FILTER_COMMODITY || "")
+                    .toUpperCase();
+
+                const clientMatch =
+                    selectedClient === "ALL"
+                    || client.includes(selectedClient);
+
+                const commodityMatch =
+                    selectedCommodity === "ALL"
+                    || commodity.includes(selectedCommodity);
+
+                if(clientMatch && commodityMatch){{
+
+                    if(props.ADA_DATA){{
+
+                        activeKabupaten++;
+
+                        // CLIENT
+                        if(selectedClient !== "ALL"){{
+
+                            clientSet.add(selectedClient);
+
+                        }} else {{
+
+                            client.split("<BR>").forEach(c => {{
+
+                                const clean =
+                                    c.replace("- ","").trim();
+
+                                if(clean){{
+                                    clientSet.add(clean);
+                                }}
+
+                            }});
+
+                        }}
+
+                        // COMMODITY
+                        if(selectedCommodity !== "ALL"){{
+
+                            commoditySet.add(selectedCommodity);
+
+                        }} else {{
+
+                            commodity.split("<BR>").forEach(c => {{
+
+                                const clean =
+                                    c.replace("- ","").trim();
+
+                                if(clean){{
+                                    commoditySet.add(clean);
+                                }}
+
+                            }});
+
+                        }}
+
+                    }}
+
+                }}
+
+            }}
+
+        }});
+
+    }}
+
+}});
+
+    document.getElementById(
+        "kpiKabupaten"
+    ).innerText = activeKabupaten;
+
+    document.getElementById(
+        "kpiClient"
+    ).innerText = clientSet.size;
+
+    document.getElementById(
+        "kpiCommodity"
+    ).innerText = commoditySet.size;
+
+}}
+        
 function applyFilters(){{
 
     const selectedClient =
@@ -757,6 +907,8 @@ function applyFilters(){{
 
         }}
 
+    updateKPI();
+
     }});
 }}
 
@@ -775,10 +927,7 @@ function setupLayerClick(){{
                 if(layer.feature){{
 
                     layer.on("click", function(){{
-                        updateKabupatenDetail(
-                        layer.feature.properties
-                        );
-
+                        
                         if(activeLayer){{
 
                             resetLayerStyle(
@@ -795,11 +944,7 @@ function setupLayerClick(){{
                             color:"#000",
                             weight:4
                         }});
-
-                        updateKabupatenDetail(
-                            layer.feature.properties
-                        );
-
+                        
                     }});
 
                 }}
@@ -810,52 +955,6 @@ function setupLayerClick(){{
 
     }});
 
-}}
-
-function updateKabupatenDetail(props){{
-
-    const detailBox =
-        document.getElementById("kabupatenDetail");
-
-    detailBox.innerHTML = `
-        <b style="
-            font-size:18px;
-            display:block;
-            margin-bottom:8px;
-            ">
-            ${{props.WADMKK}}
-            </b>
-
-            <b>Provinsi:</b><br>
-            ${{props.WADMPR}}
-
-            <div style="height:10px;"></div>
-
-            <b>Client:</b>
-            <div style="
-            max-height:40px;
-            overflow-y:auto;
-            margin-top:3px;
-            margin-bottom:10px;
-            padding-right:6px;
-            ">
-
-        ${{props.FILTER_CLIENT || "-"}}
-        </div>
-
-        <b>Commodity:</b>
-
-            <div style="
-            max-height:60px;
-            overflow-y:auto;
-            margin-top:6px;
-            padding-right:6px;
-            ">
-
-        ${{props.FILTER_COMMODITY || "-"}}
-
-        </div>
-    `;
 }}
 
 document
@@ -1041,14 +1140,10 @@ document.addEventListener("click", function(e){{
         return;
     }}
 
-    // Reset detail box
-    document.getElementById("kabupatenDetail").innerHTML = `
-        <b>Detail Kabupaten</b><br><br>
-        Klik kabupaten pada peta
-    `;
-
-    // Reset style layer aktif
+        // Reset style layer aktif
     if(activeLayer){{
+
+        activeLayer.closePopup();
 
         resetLayerStyle(
             activeLayer,
