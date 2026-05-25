@@ -466,7 +466,7 @@ template = f"""
 
 </div>
 
-<link rel="stylesheet" href="../static/css/style.css">
+<link rel="stylesheet" href="/static/css/style.css">
 
 <button id="toggleSidebar">
 ☰
@@ -614,7 +614,7 @@ const rawRelationData =
 
 </script>
 
-<script src="../static/js/main.js"></script>
+<script src="/static/js/main.js"></script>
 
 {{% endmacro %}}
 """
