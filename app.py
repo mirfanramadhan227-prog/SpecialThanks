@@ -133,43 +133,21 @@ gdf["lon"] = center.x
 
 gdf["popup_html"] = (
 
-    "<div style='"
-    "font-size:13px;"
-    "width:320px;"
-    "max-height:420px;"
-    "overflow:hidden;"
-    "font-family:Arial;"
-    "'>"
+    "<div class='popupContainer'>"
 
-    # HEADER
-    "<div style='"
-    "font-size:18px;"
-    "font-weight:bold;"
-    "margin-bottom:12px;"
-    "color:#222;"
-    "'>"
+    # TITLE
+    "<div class='popupTitle'>"
     + gdf["WADMKK"].fillna("")
     + "</div>"
 
     # CLIENT
-    "<div style='margin-bottom:14px;'>"
+    "<div class='popupSection'>"
 
-    "<div style='"
-    "font-weight:bold;"
-    "margin-bottom:6px;"
-    "font-size:14px;"
-    "'>"
+    "<div class='popupLabel'>"
     "Client"
     "</div>"
 
-    "<div style='"
-    "max-height:140px;"
-    "overflow-y:auto;"
-    "background:#f7f7f7;"
-    "padding:10px;"
-    "border-radius:8px;"
-    "line-height:1.5;"
-    "'>"
+    "<div class='popupContent'>"
 
     + gdf["Client"].fillna("-")
 
@@ -177,24 +155,13 @@ gdf["popup_html"] = (
     "</div>"
 
     # COMMODITY
-    "<div>"
+    "<div class='popupSection'>"
 
-    "<div style='"
-    "font-weight:bold;"
-    "margin-bottom:6px;"
-    "font-size:14px;"
-    "'>"
+    "<div class='popupLabel'>"
     "Commodity"
     "</div>"
 
-    "<div style='"
-    "max-height:140px;"
-    "overflow-y:auto;"
-    "background:#f7f7f7;"
-    "padding:10px;"
-    "border-radius:8px;"
-    "line-height:1.5;"
-    "'>"
+    "<div class='popupContent'>"
 
     + gdf["Commodity"].fillna("-")
 
@@ -409,72 +376,6 @@ for client in client_list:
 # COMMODITY ANALYTICS
 # ====================================
 
-commodity_series = (
-
-    df["Commodity"]
-
-    .dropna()
-
-    .astype(str)
-
-    .str.split(",")
-
-    .explode()
-
-    .str.strip()
-
-    .str.upper()
-
-)
-
-commodity_count = (
-    commodity_series
-    .value_counts()
-)
-
-commodity_html = ""
-
-max_value = commodity_count.max()
-
-for commodity, value in commodity_count.items():
-
-    width_percent = (value / max_value) * 100
-
-    commodity_html += f"""
-
-    <div style="margin-bottom:12px;">
-
-        <div style="
-        display:flex;
-        justify-content:space-between;
-        font-size:13px;
-        margin-bottom:4px;
-        ">
-
-            <span>{commodity}</span>
-            <span>{value}</span>
-
-        </div>
-
-        <div style="
-        width:100%;
-        background:#e0e0e0;
-        height:10px;
-        border-radius:10px;
-        overflow:hidden;
-        ">
-
-            <div style="
-            width:{width_percent}%;
-            height:100%;
-            background:#444;
-            ">
-            </div>
-
-        </div>
-
-    </div>
-    """
 
 # ====================================
 # DROPDOWN FILTER COMMODITY
@@ -508,58 +409,26 @@ options = "".join([
 template = f"""
 {{% macro html(this, kwargs) %}}
 
-<button id="toggleSidebar"
-style="
-position:absolute;
-bottom:7px;
-left:10px;
-top:auto;
-z-index:10000;
+<div id="loadingSpinner">
 
-background:white;
-border:none;
+    <div class="spinner"></div>
 
-width:38px;
-height:38px;
+    <div class="loadingText">
+        Loading GIS Dashboard...
+    </div>
 
-border-radius:10px;
+</div>
 
-box-shadow:0 2px 10px rgba(0,0,0,0.25);
+<link rel="stylesheet" href="../static/css/style.css">
 
-cursor:pointer;
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-font-size:18px;
-font-weight:bold;
-"
->
+<button id="toggleSidebar">
 ☰
 </button>
 
-<div id='sidebar'
-style='
-position: fixed;
-top: 10px;
-left: 10px;
-transition: all 0.3s ease;left: 10px;
+<div id='sidebar'>
 
-width: 260px;
-height: 92vh;
-
-z-index:9999;
-
-background: rgba(255,255,255,0.96);
-
-padding:18px;
-
-border-radius:14px;
-
-box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-
-overflow-y:auto;
-
-font-family:Arial;
-'
->
 <h2 style="
 margin-top:0;
 margin-bottom:10px;
@@ -574,33 +443,18 @@ GIS Dashboard
 type="text"
 id="searchBox"
 placeholder="Cari Kabupaten..."
-style="
-width:100%;
-padding:10px;
-margin-bottom:18px;
-border-radius:8px;
-border:1px solid #ccc;
-font-size:14px;
-box-sizing:border-box;
-"
 >
-</h2>
 
-<div style="
-background:#f7f7f7;
-padding:12px;
-border-radius:10px;
-margin-bottom:20px;
-">
+<div class="cardBox">
 
-<div style="margin-bottom:10px;">
+<div class="infoItem">
 <b>Kabupaten Aktif</b><br>
 <span id="kpiKabupaten">
 {kabupaten_aktif}
 </span>
 </div>
 
-<div style="margin-bottom:10px;">
+<div class="infoItem">
 <b>Total Client</b><br>
 <span id="kpiClient">
 {total_client}
@@ -619,10 +473,7 @@ margin-bottom:20px;
 <b>Filter Client</b><br><br>
 
 <select id="clientFilter"
-style="
-width:160px;
-padding:5px;
-">
+class="filterSelect">
 
 <option value="ALL">All Client</option>
 
@@ -635,10 +486,7 @@ padding:5px;
 <b>Filter Commodity</b><br><br>
 
 <select id="commodityFilter"
-style="
-width:160px;
-padding:5px;
-">
+class="filterSelect">
 
 <option value="ALL">All Commodity</option>
 
@@ -648,63 +496,35 @@ padding:5px;
 
 <br><br>
 
-<button id="clearFilterBtn"
-style="
-width:120px;
-padding:6px;
-background:white;
-color:black;
-border:1px solid black;
-border-radius:5px;
-cursor:pointer;
-font-size:12px;
-font-weight:600;
-">
+<button id="clearFilterBtn">
 Clear Filter
 </button>
 
 <br><br>
 
-<div style="
-background:#f7f7f7;
-padding:12px;
-border-radius:10px;
-">
+<div class="cardBox">
 
-<div style="
-background:#f7f7f7;
-padding:12px;
-border-radius:10px;
-margin-bottom:20px;
-">
+    <h3 class="sectionTitle">
+        Commodity Analytics
+    </h3>
 
-<h3 style="
-margin-top:0;
-font-size:18px;
-">
-Commodity Analytics
-</h3>
-
-{commodity_html}
+    <canvas id="commodityChart"></canvas>
 
 </div>
 
-<div id="floatingLegend"
-style="
-position:fixed;
-bottom:180px;
-right:10px;
-z-index:9999;
-background:rgba(255,255,255,0.95);
-padding:12px;
-border-radius:12px;
-box-shadow:0 2px 10px rgba(0,0,0,0.25);
-font-family:Arial;
-width:220px;
-max-height:70vh;
-overflow-y:auto;
-">
+<br>
 
+<div class="cardBox">
+
+    <h3 class="sectionTitle">
+        Client Analytics
+    </h3>
+
+    <canvas id="clientChart"></canvas>
+
+</div>
+    
+<div id="floatingLegend">
 <h3 style="
 margin-top:0;
 margin-bottom:12px;
@@ -713,31 +533,17 @@ font-size:18px;
 Legend
 </h3>
 
-<div style="margin-bottom:10px;">
+<div class="infoItem">
 
-<span style="
-display:inline-block;
-width:18px;
-height:18px;
-background:#ff4d4d;
-border:1px solid black;
-margin-right:8px;
-"></span>
+<span class="legendColor redLegend"></span>
 
 Kabupaten dengan data
 
 </div>
 
-<div style="margin-bottom:10px;">
+<div class="infoItem">
 
-<span style="
-display:inline-block;
-width:18px;
-height:18px;
-background:#d9d9d9;
-border:1px solid gray;
-margin-right:8px;
-"></span>
+<span class="legendColor grayLegend"></span>
 
 Kabupaten tanpa data
 
@@ -749,470 +555,7 @@ Kabupaten tanpa data
 
 </div>
 
-<script>
-
-function resetLayerStyle(layer, props){{
-
-    layer.setStyle({{
-        fillColor:
-            props.ADA_DATA
-            ? "#ff8080"
-            : "#d9d9d9",
-
-        fillOpacity:
-            props.ADA_DATA
-            ? 0.55
-            : 0.08,
-
-        color:
-            props.ADA_DATA
-            ? "#b30000"
-            : "#999999",
-
-        weight:
-            props.ADA_DATA
-            ? 1.5
-            : 0.5
-    }});
-}}
-
-function updateKPI(){{
-
-    const selectedClient =
-        document
-        .getElementById("clientFilter")
-        .value
-        .toUpperCase();
-
-    const selectedCommodity =
-        document
-        .getElementById("commodityFilter")
-        .value
-        .toUpperCase();
-
-    const layers = Object.values(window);
-
-    let activeKabupaten = 0;
-
-    const clientSet = new Set();
-
-    const commoditySet = new Set();
-
-    layers.forEach(obj => {{
-
-    if(obj instanceof L.GeoJSON){{
-
-        obj.eachLayer(function(layer){{
-
-            if(layer.feature){{
-
-                const props =
-                    layer.feature.properties;
-
-                const client =
-                    String(props.FILTER_CLIENT || "")
-                    .toUpperCase();
-
-                const commodity =
-                    String(props.FILTER_COMMODITY || "")
-                    .toUpperCase();
-
-                const clientMatch =
-                    selectedClient === "ALL"
-                    || client.includes(selectedClient);
-
-                const commodityMatch =
-                    selectedCommodity === "ALL"
-                    || commodity.includes(selectedCommodity);
-
-                if(clientMatch && commodityMatch){{
-
-                    if(props.ADA_DATA){{
-
-                        activeKabupaten++;
-
-                        // CLIENT
-                        if(selectedClient !== "ALL"){{
-
-                            clientSet.add(selectedClient);
-
-                        }} else {{
-
-                            client.split("<BR>").forEach(c => {{
-
-                                const clean =
-                                    c.replace("- ","").trim();
-
-                                if(clean){{
-                                    clientSet.add(clean);
-                                }}
-
-                            }});
-
-                        }}
-
-                        // COMMODITY
-                        if(selectedCommodity !== "ALL"){{
-
-                            commoditySet.add(selectedCommodity);
-
-                        }} else {{
-
-                            commodity.split("<BR>").forEach(c => {{
-
-                                const clean =
-                                    c.replace("- ","").trim();
-
-                                if(clean){{
-                                    commoditySet.add(clean);
-                                }}
-
-                            }});
-
-                        }}
-
-                    }}
-
-                }}
-
-            }}
-
-        }});
-
-    }}
-
-}});
-
-    document.getElementById(
-        "kpiKabupaten"
-    ).innerText = activeKabupaten;
-
-    document.getElementById(
-        "kpiClient"
-    ).innerText = clientSet.size;
-
-    document.getElementById(
-        "kpiCommodity"
-    ).innerText = commoditySet.size;
-
-}}
-        
-function applyFilters(){{
-
-    const selectedClient =
-        document
-        .getElementById("clientFilter")
-        .value
-        .toUpperCase();
-
-    const selectedCommodity =
-        document
-        .getElementById("commodityFilter")
-        .value
-        .toUpperCase();
-
-    const layers = Object.values(window);
-
-    layers.forEach(obj => {{
-
-        if(obj instanceof L.GeoJSON){{
-
-            obj.eachLayer(function(layer){{
-
-                if(layer.feature){{
-
-                    const props =
-                        layer.feature.properties;
-
-                    const client =
-                        String(props.FILTER_CLIENT || "")
-                        .toUpperCase();
-
-                    const commodity =
-                        String(props.FILTER_COMMODITY || "")
-                        .toUpperCase();
-
-                    const clientMatch =
-                        selectedClient === "ALL"
-                        || client.includes(selectedClient);
-
-                    const commodityMatch =
-                        selectedCommodity === "ALL"
-                        || commodity.includes(selectedCommodity);
-
-                    // MATCH
-                    if(clientMatch && commodityMatch){{
-
-                        resetLayerStyle(layer, props);
-
-                    }}
-
-                    // TIDAK MATCH
-                    else {{
-
-                        layer.setStyle({{
-                            fillColor:"#d9d9d9",
-                            fillOpacity:0.02,
-                            color:"#cccccc",
-                            weight:0.2
-                        }});
-                    }}
-
-                }}
-
-            }});
-
-        }}
-
-    updateKPI();
-
-    }});
-}}
-
-let activeLayer = null;
-
-function setupLayerClick(){{
-
-    const layers = Object.values(window);
-
-    layers.forEach(obj => {{
-
-        if(obj instanceof L.GeoJSON){{
-
-            obj.eachLayer(function(layer){{
-
-                if(layer.feature){{
-
-                    layer.on("click", function(){{
-                        
-                        if(activeLayer){{
-
-                            resetLayerStyle(
-                                activeLayer,
-                                activeLayer.feature.properties
-                            );
-                        }}
-
-                        activeLayer = layer;
-
-                        layer.setStyle({{
-                            fillColor:"#00bfff",
-                            fillOpacity:0.9,
-                            color:"#000",
-                            weight:4
-                        }});
-                        
-                    }});
-
-                }}
-
-            }});
-
-        }}
-
-    }});
-
-}}
-
-document
-.getElementById("clientFilter")
-.addEventListener("change", applyFilters);
-
-document
-.getElementById("commodityFilter")
-.addEventListener("change", applyFilters);
-
-document
-.getElementById("clearFilterBtn")
-.addEventListener("click", function() {{
-
-    document.getElementById("clientFilter").value =
-        "ALL";
-
-    document.getElementById("commodityFilter").value =
-        "ALL";
-
-    applyFilters();
-}});
-
-const searchInput =
-    document.getElementById("searchBox");
-
-searchInput.addEventListener("keyup", function(e) {{
-
-    const keyword =
-        this.value.toUpperCase().trim();
-
-    const layers = Object.values(window);
-
-    layers.forEach(obj => {{
-
-        if(obj instanceof L.GeoJSON){{
-
-            obj.eachLayer(function(layer){{
-               
-                if(layer.feature){{
-                    
-                    const props =
-                        layer.feature.properties;
-
-                    const kabupaten =
-                        String(props.WADMKK || "")
-                        .toUpperCase();
-
-                    const client =
-                        String(props.FILTER_CLIENT || "")
-                        .toUpperCase();
-
-                    const commodity =
-                        String(props.FILTER_COMMODITY || "")
-                        .toUpperCase();
-
-                    const isMatch =
-                        kabupaten.includes(keyword) ||
-                        client.includes(keyword) ||
-                        commodity.includes(keyword);
-
-                    // =====================
-                    // JIKA SEARCH KOSONG
-                    // =====================
-
-                    if(keyword === ""){{
-
-                        layer.setStyle({{
-                            fillColor:
-                                props.ADA_DATA
-                                ? "#ff8080"
-                                : "#d9d9d9",
-
-                            fillOpacity:
-                                props.ADA_DATA
-                                ? 0.55
-                                : 0.08,
-
-                            color:
-                                props.ADA_DATA
-                                ? "#b30000"
-                                : "#999999",
-
-                            weight:
-                                props.ADA_DATA
-                                ? 1.5
-                                : 0.5
-                        }});
-
-                        return;
-                    }}
-
-                    // =====================
-                    // MATCH
-                    // =====================
-
-                    if(isMatch){{
-
-                        layer.setStyle({{
-                            fillColor:"#ffff00",
-                            fillOpacity:0.9,
-                            weight:4,
-                            color:"#000000"
-                        }});
-
-                        if(e.key === "Enter"){{
-
-                            layer._map.fitBounds(
-                            layer.getBounds()
-                            );
-
-                            layer.openPopup();
-                        }}
-
-                    }}
-
-                    // =====================
-                    // TIDAK MATCH
-                    // =====================
-
-                    else {{
-
-                        layer.setStyle({{
-                            fillColor:"#d9d9d9",
-                            fillOpacity:0.03,
-                            color:"#cccccc",
-                            weight:0.3
-                        }});
-                    }}
-
-                }}
-
-            }});
-
-        }}
-
-    }});
-
-}});
-const sidebar = document.getElementById("sidebar");
-
-const toggleBtn = document.getElementById("toggleSidebar");
-
-let sidebarOpen = true;
-
-toggleBtn.addEventListener("click", function() {{
-
-    if(sidebarOpen){{
-
-        sidebar.style.left = "-280px";
-
-        sidebarOpen = false;
-
-    }} else {{
-
-        sidebar.style.left = "10px";
-
-        sidebarOpen = true;
-
-    }}
-
-}});
-setTimeout(function(){{
-
-    setupLayerClick()
-
-}}, 1000);
-
-document.addEventListener("click", function(e){{
-
-    // Abaikan jika klik polygon
-    if(e.target.closest(".leaflet-interactive")){{
-        return;
-    }}
-
-    // Abaikan jika klik sidebar kanan
-    if(e.target.closest("#floatingLegend")){{
-        return;
-    }}
-
-    // Abaikan jika klik sidebar kiri
-    if(e.target.closest("#sidebar")){{
-        return;
-    }}
-
-        // Reset style layer aktif
-    if(activeLayer){{
-
-        activeLayer.closePopup();
-
-        resetLayerStyle(
-            activeLayer,
-            activeLayer.feature.properties
-        );
-
-        activeLayer = null;
-    }}
-
-}});
-
-</script>
+<script src="../static/js/main.js"></script>
 
 {{% endmacro %}}
 """
