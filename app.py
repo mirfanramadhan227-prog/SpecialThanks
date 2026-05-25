@@ -18,6 +18,7 @@ df = pd.read_excel("data.xlsx")
 
 df["kabupaten"] = (
     df["kabupaten"]
+    .astype(str)
     .str.upper()
     .str.strip()
 )
@@ -78,8 +79,12 @@ gdf = gpd.read_file(
     "GeoJson-Indonesia-38-Provinsi/Kabupaten/38 Provinsi Indonesia - Kabupaten.json"
 )
 
-gdf["WADMKK"] = gdf["WADMKK"].str.upper()
-
+gdf["WADMKK"] = (
+    gdf["WADMKK"]
+    .astype(str)
+    .str.upper()
+    .str.strip()
+)
 # ====================================
 # JOIN DATA
 # ====================================
@@ -371,7 +376,23 @@ kabupaten_aktif = gdf["ADA_DATA"].sum()
 
 total_client = df["Client"].nunique()
 
-total_commodity = df["Commodity"].nunique()
+total_commodity = (
+
+    df["Commodity"]
+
+    .dropna()
+
+    .astype(str)
+
+    .str.split(",")
+
+    .explode()
+
+    .str.strip()
+
+    .nunique()
+
+)
 
 # ====================================
 # DROPWON FILTER CLIENT
@@ -388,8 +409,26 @@ for client in client_list:
 # COMMODITY ANALYTICS
 # ====================================
 
-commodity_count = (
+commodity_series = (
+
     df["Commodity"]
+
+    .dropna()
+
+    .astype(str)
+
+    .str.split(",")
+
+    .explode()
+
+    .str.strip()
+
+    .str.upper()
+
+)
+
+commodity_count = (
+    commodity_series
     .value_counts()
 )
 
@@ -441,7 +480,25 @@ for commodity, value in commodity_count.items():
 # DROPDOWN FILTER COMMODITY
 # ====================================
 
-commodity_list = sorted(df["Commodity"].dropna().unique())
+commodity_list = sorted(
+
+    df["Commodity"]
+
+    .dropna()
+
+    .astype(str)
+
+    .str.split(",")
+
+    .explode()
+
+    .str.strip()
+
+    .str.upper()
+
+    .unique()
+
+)
 
 options = "".join([
     f'<option value="{c}">{c}</option>'
@@ -1169,6 +1226,6 @@ m.get_root().add_child(macro)
 # SIMPAN
 # ====================================
 
-m.save("index.html")
+m.save("templates/index.html")
 
 print("Peta persebaran berhasil dibuat!")
