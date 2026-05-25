@@ -1,7 +1,3 @@
-let commodityChart = null;
-
-let clientChart = null;
-
 function showLoading(){
 
     document
@@ -46,141 +42,66 @@ function updateKPI(){
     const selectedClient =
         document
         .getElementById("clientFilter")
-        .value
-        .toUpperCase();
+        .value;
 
     const selectedCommodity =
         document
         .getElementById("commodityFilter")
-        .value
-        .toUpperCase();
+        .value;
 
-    const layers = Object.values(window);
+    let filteredData = rawRelationData;
 
-    let activeKabupaten = 0;
+    // =========================
+    // FILTER CLIENT
+    // =========================
 
-    const clientSet = new Set();
+    if(selectedClient !== "ALL"){
 
-    const commoditySet = new Set();
-
-    layers.forEach(obj => {
-
-    if(obj instanceof L.GeoJSON){
-
-        obj.eachLayer(function(layer){
-
-            if(layer.feature){
-
-                const props =
-                    layer.feature.properties;
-
-                const client =
-                    String(props.FILTER_CLIENT || "")
-                    .toUpperCase();
-
-                const commodity =
-                    String(props.FILTER_COMMODITY || "")
-                    .toUpperCase();
-
-                const clientMatch =
-                    selectedClient === "ALL"
-                    || client.includes(selectedClient);
-
-                const commodityMatch =
-                    selectedCommodity === "ALL"
-                    || commodity.includes(selectedCommodity);
-
-                if(clientMatch && commodityMatch){
-
-                    if(props.ADA_DATA){
-
-                        activeKabupaten++;
-
-                        // CLIENT
-                        if(selectedClient !== "ALL"){
-
-                            clientSet.add(selectedClient);
-
-                        } else {
-
-                            client.split(/<br\s*\/?>/i).forEach(c => {
-
-                                const clean =
-                                    c.replace("- ","").trim();
-
-                                if(clean){
-                                    clientSet.add(clean);
-                                }
-
-                            });
-
-                        }
-
-                        // COMMODITY
-                        if(selectedCommodity !== "ALL"){
-
-                            commoditySet.add(selectedCommodity);
-
-                        } else {
-
-                            commodity.split(/<br\s*\/?>/i).forEach(c => {
-
-                                const clean =
-                                    c.replace("- ","").trim();
-
-                                if(clean){
-                                    commoditySet.add(clean);
-                                }
-
-                            });
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-        });
+        filteredData =
+            filteredData.filter(
+                x => x.client === selectedClient
+            );
 
     }
 
-});
+    // =========================
+    // FILTER COMMODITY
+    // =========================
 
-    document.getElementById(
-        "kpiKabupaten"
-    ).innerText = activeKabupaten;
+    if(selectedCommodity !== "ALL"){
 
-    document.getElementById(
-        "kpiClient"
-    ).innerText = clientSet.size;
+        filteredData =
+            filteredData.filter(
+                x => x.commodity === selectedCommodity
+            );
 
-    document.getElementById(
-        "kpiCommodity"
-    ).innerText = commoditySet.size;
+    }
 
-}
+    // =========================
+    // HITUNG KPI
+    // =========================
 
-function updateCharts(){
+    const clientSet =
+        new Set();
 
-    const selectedClient =
-        document
-        .getElementById("clientFilter")
-        .value
-        .toUpperCase();
+    const commoditySet =
+        new Set();
 
-    const selectedCommodity =
-        document
-        .getElementById("commodityFilter")
-        .value
-        .toUpperCase();
+    filteredData.forEach(item => {
+
+        clientSet.add(item.client);
+
+        commoditySet.add(item.commodity);
+
+    });
+
+    // =========================
+    // HITUNG KABUPATEN
+    // =========================
+
+    let activeKabupaten = 0;
 
     const layers = Object.values(window);
-
-    const commodityCount = {};
-
-    const clientCount = {};
 
     layers.forEach(obj => {
 
@@ -193,49 +114,37 @@ function updateCharts(){
                     const props =
                         layer.feature.properties;
 
-                    const clients =
+                    const client =
                         String(props.FILTER_CLIENT || "");
 
-                    const commodities =
+                    const commodity =
                         String(props.FILTER_COMMODITY || "");
 
-                    const clientMatch =
-                        selectedClient === "ALL"
-                        || clients.toUpperCase()
-                        .includes(selectedClient);
+                    let match = true;
 
-                    const commodityMatch =
-                        selectedCommodity === "ALL"
-                        || commodities.toUpperCase()
-                        .includes(selectedCommodity);
+                    if(selectedClient !== "ALL"){
 
-                    if(clientMatch && commodityMatch){
+                        match =
+                            match &&
+                            client.includes(
+                                selectedClient
+                            );
 
-                        // CLIENT
-                        clients.split(/<br\s*\/?>/i).forEach(c => {
+                    }
 
-                            const clean = c.trim();
+                    if(selectedCommodity !== "ALL"){
 
-                            if(clean){
+                        match =
+                            match &&
+                            commodity.includes(
+                                selectedCommodity
+                            );
 
-                                clientCount[clean] =
-                                    (clientCount[clean] || 0) + 1;
-                            }
+                    }
 
-                        });
+                    if(match && props.ADA_DATA){
 
-                        // COMMODITY
-                        commodities.split(/<br\s*\/?>/i).forEach(c => {
-
-                            const clean = c.trim();
-
-                            if(clean){
-
-                                commodityCount[clean] =
-                                    (commodityCount[clean] || 0) + 1;
-                            }
-
-                        });
+                        activeKabupaten++;
 
                     }
 
@@ -248,100 +157,278 @@ function updateCharts(){
     });
 
     // =========================
-    // TOP 10
+    // UPDATE HTML
     // =========================
 
-    const topCommodity = Object.entries(
+    document.getElementById(
+        "kpiKabupaten"
+    ).innerText = activeKabupaten;
+
+    document.getElementById(
+        "kpiClient"
+    ).innerText = clientSet.size;
+
+    document.getElementById(
+        "kpiCommodity"
+    ).innerText = commoditySet.size;
+}
+
+function updateRelatedAnalytics(){
+
+    const selectedClient =
+        document
+        .getElementById("clientFilter")
+        .value;
+
+    const selectedCommodity =
+        document
+        .getElementById("commodityFilter")
+        .value;
+
+    const analyticsBox =
+        document.getElementById(
+            "relatedAnalytics"
+        );
+
+    // =========================
+    // CLIENT FILTER
+    // =========================
+
+    if(selectedClient !== "ALL"){
+
+        const commodities = [
+
+            ...new Set(
+
+                rawRelationData
+
+                .filter(x =>
+                    x.client === selectedClient
+                )
+
+                .map(x => x.commodity)
+
+            )
+
+        ];
+
+        analyticsBox.innerHTML = `
+
+            <b>
+            Commodity used by:
+            </b>
+
+            <br><br>
+
+            ${commodities
+                .sort()
+                .map(x => `• ${x}`)
+                .join("<br>")
+            }
+
+        `;
+
+        return;
+    }
+
+    // =========================
+    // COMMODITY FILTER
+    // =========================
+
+    if(selectedCommodity !== "ALL"){
+
+        const clients = [
+
+            ...new Set(
+
+                rawRelationData
+
+                .filter(x =>
+                    x.commodity === selectedCommodity
+                )
+
+                .map(x => x.client)
+
+            )
+
+        ];
+
+        analyticsBox.innerHTML = `
+
+            <b>
+            Client using:
+            </b>
+
+            <br><br>
+
+            ${clients
+                .sort()
+                .map(x => `• ${x}`)
+                .join("<br>")
+            }
+
+        `;
+
+        return;
+    }
+
+    // =========================
+    // CLEAR
+    // =========================
+
+    analyticsBox.innerHTML =
+        "No Filter Selected";
+}
+
+function updateTopCommodity(kabupaten = null){
+
+    const commodityCount = {};
+
+    const title =
+    document.getElementById(
+        "topCommodityTitle"
+    );
+
+    // =========================
+    // FILTER RAW DATA
+    // =========================
+
+    let filteredData = rawRelationData;
+
+    title.innerText =
+    "Top 5 Commodity National";
+
+    // jika klik kabupaten
+    if(kabupaten){
+
+        title.innerText =
+        `Top 5 Commodity ${kabupaten}`;
+
+        const layers = Object.values(window);
+
+        layers.forEach(obj => {
+
+            if(obj instanceof L.GeoJSON){
+
+                obj.eachLayer(function(layer){
+
+                    if(layer.feature){
+
+                        const props =
+                            layer.feature.properties;
+
+                        const kabName =
+                            String(props.WADMKK || "")
+                            .toUpperCase();
+
+                        if(kabName === kabupaten){
+
+                            const clients =
+                                String(props.FILTER_CLIENT || "")
+                                .split(/<br\s*\/?>/i)
+                                .map(x => x.trim());
+
+                            filteredData =
+                                rawRelationData.filter(x =>
+                                    clients.includes(x.client)
+                                );
+                        }
+
+                    }
+
+                });
+
+            }
+
+        });
+
+    }
+
+    // =========================
+    // HITUNG COMMODITY
+    // =========================
+
+    filteredData.forEach(item => {
+
+        const commodity =
+            String(item.commodity || "")
+            .trim()
+            .toUpperCase();
+
+        if(commodity){
+
+            commodityCount[commodity] =
+                (commodityCount[commodity] || 0) + 1;
+        }
+
+    });
+
+    // =========================
+    // SORT TOP 5
+    // =========================
+
+    const top5 = Object.entries(
         commodityCount
     )
-    .sort((a,b) => b[1]-a[1])
-    .slice(0,10);
-
-    const topClient = Object.entries(
-        clientCount
-    )
-    .sort((a,b) => b[1]-a[1])
-    .slice(0,10);
+    .sort((a,b) => b[1] - a[1])
+    .slice(0,5);
 
     // =========================
-    // DESTROY OLD CHART
+    // HTML
     // =========================
 
-    if(commodityChart){
+    const html = top5.map(item => `
 
-        commodityChart.destroy();
-    }
+        <div style="
+            margin-bottom:10px;
+        ">
 
-    if(clientChart){
+            <b>${item[0]}</b>
 
-        clientChart.destroy();
-    }
+            <div style="
+                height:10px;
+                background:#eee;
+                border-radius:6px;
+                overflow:hidden;
+                margin-top:4px;
+            ">
 
-    // =========================
-    // COMMODITY PIE
-    // =========================
+                <div style="
+                    width:${item[1] * 10}px;
+                    height:100%;
+                    background:#ff4d4f;
+                "></div>
 
-    commodityChart = new Chart(
+            </div>
 
-        document.getElementById(
-            "commodityChart"
-        ),
+            <small>
+                ${item[1]} data
+            </small>
 
-        {
-            type:"pie",
+        </div>
 
-            data:{
+    `).join("");
 
-                labels:
-                    topCommodity.map(x => x[0]),
-
-                datasets:[{
-
-                    data:
-                        topCommodity.map(x => x[1])
-
-                }]
-            }
-        }
-    );
-
-    // =========================
-    // CLIENT BAR
-    // =========================
-
-    clientChart = new Chart(
-
-        document.getElementById(
-            "clientChart"
-        ),
-
-        {
-            type:"bar",
-
-            data:{
-
-                labels:
-                    topClient.map(x => x[0]),
-
-                datasets:[{
-
-                    data:
-                        topClient.map(x => x[1])
-
-                }]
-            },
-
-            options:{
-                indexAxis:'y'
-            }
-        }
-    );
-
+    document.getElementById(
+        "topCommodityBox"
+    ).innerHTML = html || "No Data";
 }
 
 function applyFilters(){
 
     showLoading();
+
+    // RESET ZOOM NASIONAL
+
+    Object.values(window).forEach(obj => {
+
+        if(obj instanceof L.Map){
+
+            obj.setView([-2.5, 118], 5);
+
+        }
+
+    });
 
     const selectedClient =
         document
@@ -420,8 +507,8 @@ function applyFilters(){
     // UPDATE KPI
     updateKPI();
 
-    // UPDATE CHARTS
-    updateCharts();
+    // UPDATE RELATED ANALYTICS
+    updateRelatedAnalytics();
 
     // HIDE LOADING
     setTimeout(() => {
@@ -506,6 +593,11 @@ function setupLayerClick(){
                             "kpiCommodity"
                         ).innerText =
                             new Set(commodities).size;
+                        
+                        updateTopCommodity(
+                            String(props.WADMKK || "")
+                            .toUpperCase()
+                        );    
 
                     });
 
@@ -665,23 +757,12 @@ let sidebarOpen = true;
 toggleBtn.addEventListener("click", function() {
 
     if(sidebarOpen){
-
-    sidebar.style.transform =
-        "translateX(-120%)";
-
-    sidebar.style.opacity = "0";
-
+    sidebar.style.left = "-320px";
     sidebarOpen = false;
-
     } else {
 
-    sidebar.style.transform =
-        "translateX(0)";
-
-    sidebar.style.opacity = "1";
-
+    sidebar.style.left = "10px";
     sidebarOpen = true;
-
     }
 
 });
@@ -689,9 +770,13 @@ window.onload = function(){
 
     setupLayerClick();
 
-    updateCharts();
+    updateRelatedAnalytics();
+
+    updateTopCommodity();
 
     hideLoading();
+
+    setupDarkModeListener();
 
 };
 
@@ -724,7 +809,49 @@ document.addEventListener("click", function(e){
 
         activeLayer = null;
         
+        updateTopCommodity();
+
         updateKPI();
     }
 
 });
+
+function setupDarkModeListener(){
+
+    const labels =
+        document.querySelectorAll(
+            ".leaflet-control-layers-selector"
+        );
+
+    labels.forEach(input => {
+
+        input.addEventListener("change", function(){
+
+            const layerText =
+                this.nextSibling.textContent
+                .trim()
+                .toLowerCase();
+
+            // DARK MODE
+            if(layerText.includes("dark")){
+
+                document.body.classList.add(
+                    "dark-mode"
+                );
+
+            }
+
+            // LIGHT MODE
+            else {
+
+                document.body.classList.remove(
+                    "dark-mode"
+                );
+
+            }
+
+        });
+
+    });
+
+}

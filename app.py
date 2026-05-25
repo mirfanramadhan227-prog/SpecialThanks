@@ -1,6 +1,7 @@
 import pandas as pd
 import geopandas as gpd
 import folium
+import json
 
 from folium.plugins import Search
 from folium.plugins import Fullscreen
@@ -13,6 +14,24 @@ from branca.element import Template, MacroElement
 # ====================================
 
 df = pd.read_excel("data.xlsx")
+
+# RAPIIKAN CLIENT
+df["Client"] = (
+    df["Client"]
+    .fillna("")
+    .astype(str)
+    .str.replace(r"\s+", " ", regex=True)
+    .str.strip()
+)
+
+# RAPIIKAN COMMODITY
+df["Commodity"] = (
+    df["Commodity"]
+    .fillna("")
+    .astype(str)
+    .str.replace(r"\s+", " ", regex=True)
+    .str.strip()
+)
 
 # Rapikan huruf
 
@@ -192,6 +211,13 @@ folium.TileLayer(
 # ====================================
 
 folium.TileLayer(
+    tiles="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    attr="OpenTopoMap",
+    name="Terrain",
+    show=False
+).add_to(m)
+
+folium.TileLayer(
     "CartoDB positron",
     name="Light Mode",
     show=False
@@ -200,13 +226,6 @@ folium.TileLayer(
 folium.TileLayer(
     "CartoDB dark_matter",
     name="Dark Mode",
-    show=False
-).add_to(m)
-
-folium.TileLayer(
-    tiles="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-    attr="OpenTopoMap",
-    name="Terrain",
     show=False
 ).add_to(m)
 
@@ -285,7 +304,7 @@ tooltip = folium.GeoJsonTooltip(
 
 geojson = folium.GeoJson(
     gdf,
-    name="Layer",
+    control=False,
     zoom_on_click=True,
     style_function=style_function,
     highlight_function=highlight_function,
@@ -315,15 +334,15 @@ for idx, row in gdf.iterrows():
 
             location=[row["lat"], row["lon"]],
 
-            radius=4,
+            radius=2,
 
-            color="red",
+            color="#00aa00",
 
             fill=True,
 
-            fill_color="red",
+            fill_color="#00cc00",
 
-            fill_opacity=1,
+            fill_opacity=0.9,
 
             tooltip=row["WADMKK"]
 
@@ -406,6 +425,34 @@ options = "".join([
     for c in commodity_list
 ])
 
+# ====================================
+# RAW CLIENT-COMMODITY RELATION
+# ====================================
+
+raw_relation = []
+
+for _, row in df.iterrows():
+
+    client = str(row["Client"]).strip()
+
+    commodities = (
+        str(row["Commodity"])
+        .split(",")
+    )
+
+    for com in commodities:
+
+        clean_com = com.strip().upper()
+
+        if client and clean_com:
+
+            raw_relation.append({
+                "client": client,
+                "commodity": clean_com
+            })
+
+raw_relation_json = json.dumps(raw_relation)
+
 template = f"""
 {{% macro html(this, kwargs) %}}
 
@@ -421,21 +468,13 @@ template = f"""
 
 <link rel="stylesheet" href="../static/css/style.css">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <button id="toggleSidebar">
 ☰
 </button>
 
 <div id='sidebar'>
 
-<h2 style="
-margin-top:0;
-margin-bottom:10px;
-font-size:22px;
-font-weight:700;
-color:#222;
-">
+<h2 class="dashboardTitle">
 GIS Dashboard
 </h2>
 
@@ -505,10 +544,14 @@ Clear Filter
 <div class="cardBox">
 
     <h3 class="sectionTitle">
-        Commodity Analytics
+        Related Analytics
     </h3>
 
-    <canvas id="commodityChart"></canvas>
+    <div id="relatedAnalytics">
+
+        No Filter Selected
+
+    </div>
 
 </div>
 
@@ -516,14 +559,21 @@ Clear Filter
 
 <div class="cardBox">
 
-    <h3 class="sectionTitle">
-        Client Analytics
+    <h3
+    class="sectionTitle"
+    id="topCommodityTitle"
+    >
+        Top 5 Commodity National
     </h3>
 
-    <canvas id="clientChart"></canvas>
+    <div id="topCommodityBox">
+
+        Loading...
+
+    </div>
 
 </div>
-    
+
 <div id="floatingLegend">
 <h3 style="
 margin-top:0;
@@ -550,10 +600,19 @@ Kabupaten tanpa data
 </div>
 
 <div>
-📍 Marker lokasi client
+<span class="legendColor greenLegend"></span>
+
+Marker lokasi client
 </div>
 
 </div>
+
+<script>
+
+const rawRelationData =
+{raw_relation_json};
+
+</script>
 
 <script src="../static/js/main.js"></script>
 
