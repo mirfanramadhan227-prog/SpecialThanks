@@ -5,8 +5,6 @@
     top: 10px;
     left: 10px;
 
-    transition: left 0.3s ease;
-
     width: 260px;
     height: 92vh;
 
@@ -596,4 +594,157 @@ body.dark-mode .leaflet-control-minimap{
     font-weight:700;
 
     color:#222;
+}
+
+/* =========================
+   MODERN KPI CARD
+========================= */
+
+.kpiContainer{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+    margin-bottom:24px;
+}
+
+.kpiCard{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    padding:16px;
+
+    border-radius:18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,0.75),
+            rgba(255,255,255,0.45)
+        );
+
+    backdrop-filter:blur(12px);
+
+    border:
+        1px solid rgba(255,255,255,0.25);
+
+    box-shadow:
+        0 8px 24px rgba(0,0,0,0.12);
+
+    transition:
+        all 0.28s ease;
+}
+
+.kpiCard:hover{
+
+    transform:
+        translateY(-3px)
+        scale(1.01);
+
+    box-shadow:
+        0 12px 28px rgba(0,0,0,0.18);
+}
+
+.kpiIcon{
+
+    width:54px;
+    height:54px;
+
+    border-radius:16px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:24px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #60a5fa
+        );
+
+    color:white;
+
+    box-shadow:
+        0 4px 14px rgba(37,99,235,0.35);
+}
+
+.kpiContent{
+
+    display:flex;
+
+    flex-direction:column;
+}
+
+.kpiTitle{
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:#666;
+
+    margin-bottom:4px;
+}
+
+.kpiValue{
+
+    font-size:28px;
+
+    font-weight:700;
+
+    color:#111827;
+
+    line-height:1;
+}
+
+/* =========================
+   DARK MODE KPI
+========================= */
+
+body.dark-mode .kpiCard{
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(31,41,55,0.95),
+            rgba(17,24,39,0.92)
+        );
+
+    border:
+        1px solid rgba(255,255,255,0.05);
+
+    box-shadow:
+        0 8px 24px rgba(0,0,0,0.45);
+}
+
+body.dark-mode .kpiTitle{
+
+    color:#9ca3af;
+}
+
+body.dark-mode .kpiValue{
+
+    color:#f9fafb;
+}
+
+body.dark-mode .kpiIcon{
+
+    background:
+        linear-gradient(
+            135deg,
+            #1d4ed8,
+            #2563eb
+        );
 }

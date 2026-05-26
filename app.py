@@ -466,7 +466,7 @@ template = f"""
 
 </div>
 
-<link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="static/css/style.css">
 
 <button id="toggleSidebar">
 ☰
@@ -474,103 +474,153 @@ template = f"""
 
 <div id='sidebar'>
 
-<h2 class="dashboardTitle">
-GIS Dashboard
-</h2>
+    <h2 class="dashboardTitle">
+    GIS Dashboard
+    </h2>
 
-<input
-type="text"
-id="searchBox"
-placeholder="Cari Kabupaten..."
->
-
-<div class="cardBox">
-
-<div class="infoItem">
-<b>Kabupaten Aktif</b><br>
-<span id="kpiKabupaten">
-{kabupaten_aktif}
-</span>
-</div>
-
-<div class="infoItem">
-<b>Total Client</b><br>
-<span id="kpiClient">
-{total_client}
-</span>
-</div>
-
-<div>
-<b>Total Commodity</b><br>
-<span id="kpiCommodity">
-{total_commodity}
-</span>
-</div>
-
-</div>
-
-<b>Filter Client</b><br><br>
-
-<select id="clientFilter"
-class="filterSelect">
-
-<option value="ALL">All Client</option>
-
-{client_options}
-
-</select>
-
-<br><br>
-
-<b>Filter Commodity</b><br><br>
-
-<select id="commodityFilter"
-class="filterSelect">
-
-<option value="ALL">All Commodity</option>
-
-{options}
-
-</select>
-
-<br><br>
-
-<button id="clearFilterBtn">
-Clear Filter
-</button>
-
-<br><br>
-
-<div class="cardBox">
-
-    <h3 class="sectionTitle">
-        Related Analytics
-    </h3>
-
-    <div id="relatedAnalytics">
-
-        No Filter Selected
-
-    </div>
-
-</div>
-
-<br>
-
-<div class="cardBox">
-
-    <h3
-    class="sectionTitle"
-    id="topCommodityTitle"
+    <input
+    type="text"
+    id="searchBox"
+    placeholder="Cari Kabupaten..."
     >
-        Top 5 Commodity National
-    </h3>
 
-    <div id="topCommodityBox">
+    <div class="kpiContainer">
 
-        Loading...
+        <div class="kpiCard">
+
+            <div class="kpiIcon">
+                🗺
+            </div>
+
+            <div class="kpiContent">
+
+                <div class="kpiTitle">
+                    Kabupaten Aktif
+                </div>
+
+                <div
+                class="kpiValue"
+                id="kpiKabupaten"
+                >
+                    {kabupaten_aktif}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="kpiCard">
+
+            <div class="kpiIcon">
+                🏢
+            </div>
+
+            <div class="kpiContent">
+
+                <div class="kpiTitle">
+                    Total Client
+                </div>
+
+                <div
+                class="kpiValue"
+                id="kpiClient"
+                >
+                    {total_client}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="kpiCard">
+
+            <div class="kpiIcon">
+                📦
+            </div>
+
+            <div class="kpiContent">
+
+                <div class="kpiTitle">
+                    Total Commodity
+                </div>
+
+                <div
+                class="kpiValue"
+                id="kpiCommodity"
+                >
+                    {total_commodity}
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
+
+    <b>Filter Client</b><br><br>
+
+    <select id="clientFilter"
+    class="filterSelect">
+
+    <option value="ALL">All Client</option>
+
+    {client_options}
+
+    </select>
+
+    <br><br>
+
+    <b>Filter Commodity</b><br><br>
+
+    <select id="commodityFilter"
+    class="filterSelect">
+
+    <option value="ALL">All Commodity</option>
+
+    {options}
+
+    </select>
+
+    <br><br>
+
+    <button id="clearFilterBtn">
+    Clear Filter
+    </button>
+
+    <br><br>
+
+    <div class="cardBox">
+
+        <h3 class="sectionTitle">
+            Related Analytics
+        </h3>
+
+        <div id="relatedAnalytics">
+
+            No Filter Selected
+
+        </div>
+
+    </div>
+
+    <br>
+
+    <div class="cardBox">
+
+        <h3
+        class="sectionTitle"
+        id="topCommodityTitle"
+        >
+            Top 5 Commodity National
+        </h3>
+
+        <div id="topCommodityBox">
+
+            Loading...
+
+        </div>
+
+</div>
 
 </div>
 
@@ -614,7 +664,7 @@ const rawRelationData =
 
 </script>
 
-<script src="/static/js/main.js"></script>
+<script src="static/js/main.js"></script>
 
 {{% endmacro %}}
 """
