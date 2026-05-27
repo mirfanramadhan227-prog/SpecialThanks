@@ -645,63 +645,19 @@ document
 .getElementById("clearFilterBtn")
 .addEventListener("click", function() {
 
-    // RESET CHECKBOX CLIENT
     document
-    .querySelectorAll(".clientCheckbox")
+    .querySelectorAll(
+        ".clientCheckbox"
+    )
     .forEach(x => x.checked = false);
 
-    // RESET CHECKBOX COMMODITY
     document
-    .querySelectorAll(".commodityCheckbox")
+    .querySelectorAll(
+        ".commodityCheckbox"
+    )
     .forEach(x => x.checked = false);
-
-    // RESET SEARCH CLIENT
-    const clientSearch =
-        document.getElementById(
-            "clientSearch"
-        );
-
-    if(clientSearch){
-
-        clientSearch.value = "";
-
-        clientSearch.dispatchEvent(
-            new Event("keyup")
-        );
-    }
-
-    // RESET SEARCH COMMODITY
-    const commoditySearch =
-        document.getElementById(
-            "commoditySearch"
-        );
-
-    if(commoditySearch){
-
-        commoditySearch.value = "";
-
-        commoditySearch.dispatchEvent(
-            new Event("keyup")
-        );
-    }
-
-    // RESET SEARCH KABUPATEN
-    const searchBox =
-        document.getElementById(
-            "searchBox"
-        );
-
-    if(searchBox){
-
-        searchBox.value = "";
-
-        searchBox.dispatchEvent(
-            new Event("keyup")
-        );
-    }
 
     applyFilters();
-
 });
 
 const searchInput =
@@ -829,20 +785,12 @@ let sidebarOpen = true;
 toggleBtn.addEventListener("click", function() {
 
     if(sidebarOpen){
-
-        sidebar.style.left = "-320px";
-
-        toggleBtn.style.left = "10px";
-
-        sidebarOpen = false;
-
+    sidebar.style.left = "-320px";
+    sidebarOpen = false;
     } else {
 
-        sidebar.style.left = "10px";
-
-        toggleBtn.style.left = "280px";
-
-        sidebarOpen = true;
+    sidebar.style.left = "10px";
+    sidebarOpen = true;
     }
 
 });

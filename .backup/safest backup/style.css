@@ -6,7 +6,7 @@
     left: 10px;
     width: 260px;
     z-index: 9999;
-    max-height:calc(100vh - 20px);
+    height:100vh;
 
     overflow-y:auto;
 
@@ -20,6 +20,8 @@
 
     box-shadow: 0 4px 20px rgba(0,0,0,0.25);
 
+    overflow-y: auto;
+
     transition: all 0.3s ease;
 
     font-family: Arial;
@@ -27,11 +29,10 @@
 
 #toggleSidebar{
 
-    position:fixed;
+    position:absolute;
 
-    bottom:14px;
-
-    left:280px;
+    bottom:7px;
+    left:10px;
 
     top:auto;
 
@@ -53,8 +54,6 @@
     font-size:18px;
 
     font-weight:bold;
-
-    transition:left 0.3s ease;
 }
 
 #searchBox{
@@ -72,6 +71,13 @@
     font-size:14px;
 
     box-sizing:border-box;
+}
+
+.filterSelect{
+
+    width:160px;
+
+    padding:5px;
 }
 
 #clearFilterBtn{
@@ -190,6 +196,46 @@
     font-family:Arial;
 }
 
+.popupTitle{
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    margin-bottom:12px;
+
+    color:#222;
+}
+
+.popupSection{
+
+    margin-bottom:14px;
+}
+
+.popupLabel{
+
+    font-weight:bold;
+
+    margin-bottom:6px;
+
+    font-size:14px;
+}
+
+.popupContent{
+
+    max-height:140px;
+
+    overflow-y:auto;
+
+    background:#f7f7f7;
+
+    padding:10px;
+
+    border-radius:8px;
+
+    line-height:1.5;
+}
+
 @media screen and (max-width: 768px){
 
     #sidebar{
@@ -201,6 +247,10 @@
         padding: 12px;
 
         font-size: 13px;
+
+        transform:translateX(0);
+
+        opacity:1;
     }
 
     #floatingLegend{
@@ -221,6 +271,13 @@
         padding: 8px;
     }
 
+    .filterSelect{
+
+        width: 140px;
+
+        font-size: 12px;
+    }
+
     #clearFilterBtn{
 
         width: 100px;
@@ -233,6 +290,11 @@
         width: 240px;
 
         font-size: 12px;
+    }
+
+    .popupContent{
+
+        max-height: 100px;
     }
 
     #toggleSidebar{
@@ -352,10 +414,38 @@
    BUTTON
 ========================= */
 
-#exportBtn,
-#clearFilterBtn,
-.exportModalContent button{
-    transition:all 0.2s ease;
+button{
+
+    transition:
+        all 0.2s ease;
+}
+
+button:hover{
+
+    transform:scale(1.03);
+
+    opacity:0.92;
+}
+
+/* =========================
+   DROPDOWN
+========================= */
+
+select{
+
+    transition:
+        border 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+select:focus{
+
+    outline:none;
+
+    border:1px solid #007bff;
+
+    box-shadow:
+        0 0 8px rgba(0,123,255,0.25);
 }
 
 /* =================================
@@ -447,6 +537,15 @@ body.dark-mode .leaflet-popup-tip{
     background:#1f2937;
 }
 
+/* POPUP CONTENT */
+
+body.dark-mode .popupContent{
+
+    background:#111827;
+
+    color:#f3f4f6;
+}
+
 /* LOADING */
 
 body.dark-mode #loadingSpinner{
@@ -532,6 +631,8 @@ body.dark-mode .leaflet-control-minimap{
             rgba(255,255,255,0.75),
             rgba(255,255,255,0.45)
         );
+
+    backdrop-filter:blur(12px);
 
     border:
         1px solid rgba(255,255,255,0.25);
@@ -665,12 +766,17 @@ body.dark-mode .kpiIcon{
     background:
         rgba(255,255,255,0.92);
 
+    backdrop-filter:blur(14px);
+
     box-shadow:
         0 10px 35px rgba(0,0,0,0.25);
 
     animation:
         popupFade 0.25s ease;
-    
+}
+
+.leaflet-popup-content-wrapper{
+
     padding:0 !important;
 }
 
@@ -918,6 +1024,88 @@ body.dark-mode .popupItem{
         0 4px 14px rgba(37,99,235,0.25);
 }
 
+#exportPNG:hover{
+
+    transform:
+        translateY(-2px);
+
+    opacity:0.95;
+}
+
+body.dark-mode #exportPNG{
+
+    background:
+        linear-gradient(
+            135deg,
+            #1d4ed8,
+            #2563eb
+        );
+}
+
+/* =========================
+   EXPORT MODE FIX
+========================= */
+
+.export-mode .leaflet-popup-content-wrapper{
+
+    background:#ffffff !important;
+
+    backdrop-filter:none !important;
+
+    -webkit-backdrop-filter:none !important;
+
+    opacity:1 !important;
+}
+
+.export-mode .leaflet-popup-tip{
+
+    background:#ffffff !important;
+}
+
+.export-mode .popupHeader{
+
+    background:#2563eb !important;
+}
+
+.export-mode .popupItem{
+
+    background:#f3f4f6 !important;
+
+    color:#111827 !important;
+}
+
+.export-mode #sidebar{
+
+    background:#ffffff !important;
+
+    opacity:1 !important;
+
+    backdrop-filter:none !important;
+
+    -webkit-backdrop-filter:none !important;
+}
+
+.export-mode .kpiCard{
+
+    background:#ffffff !important;
+
+    border:1px solid #e5e7eb !important;
+
+    backdrop-filter:none !important;
+
+    -webkit-backdrop-filter:none !important;
+}
+
+.export-mode .kpiTitle{
+
+    color:#6b7280 !important;
+}
+
+.export-mode .kpiValue{
+
+    color:#111827 !important;
+}
+
 /* =========================
    EXPORT DROPDOWN
 ========================= */
@@ -1042,6 +1230,9 @@ body.dark-mode #exportMenu button{
     background:
         rgba(0,0,0,0.45);
 
+    backdrop-filter:
+        blur(8px);
+
     display:flex;
 
     justify-content:center;
@@ -1117,6 +1308,20 @@ body.dark-mode #exportMenu button{
     transition:0.2s;
 
     box-sizing:border-box;
+}
+
+/* PNG */
+
+#exportPNG{
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #60a5fa
+        );
+
+    color:white;
 }
 
 /* PDF */
@@ -1315,6 +1520,53 @@ body.dark-mode .exportLoadingBox p{
 }
 
 /* =========================
+   EXPORT SIDEBAR FIX
+========================= */
+
+.export-mode #sidebar{
+
+    background:#ffffff !important;
+
+    filter:none !important;
+
+    opacity:1 !important;
+
+    transform:none !important;
+
+    transition:none !important;
+
+    mix-blend-mode:normal !important;
+
+    isolation:auto !important;
+
+    will-change:auto !important;
+
+    box-shadow:none !important;
+}
+
+.export-mode .kpiCard{
+
+    background:#ffffff !important;
+
+    filter:none !important;
+
+    opacity:1 !important;
+
+    transform:none !important;
+
+    transition:none !important;
+
+    box-shadow:none !important;
+}
+
+.export-mode *{
+
+    backdrop-filter:none !important;
+
+    -webkit-backdrop-filter:none !important;
+}
+
+/* =========================
    EXPORT FIX (Export akan di aktifkan kembali saat masuk proses flask
 ========================= */
 
@@ -1354,19 +1606,19 @@ body{
 
 #exportWatermark{
 
+    #exportWatermark{
+
     position:absolute !important;
 
-    bottom:330px;
+    bottom:20px;
 
-    right:-118px;
+    left:50%;
 
     transform:translateX(-50%);
 
     z-index:999999;
 
     display:none;
-    
-    pointer-events:none;
 
     align-items:center;
 
@@ -1377,10 +1629,21 @@ body{
     padding:10px 18px;
 
     border-radius:14px;
+}
+}
 
-    font-size:0 !important;
+#exportWatermark img{
 
-    line-height:0 !important;
+    width:42px;
+    height:42px;
+
+    object-fit:contain;
+
+    display:block;
+
+    background:transparent !important;
+
+    image-rendering:auto;
 }
 
 .watermarkText{
@@ -1511,6 +1774,28 @@ body.dark-mode .checkboxItem:hover{
     background:#1f2937;
 }
 
+#exportWatermark{
+
+    position:absolute;
+
+    bottom:25px;
+
+    right:25px;
+
+    z-index:999999;
+
+    display:none;
+
+    pointer-events:none;
+}
+
+#exportWatermark img{
+
+    width:220px;
+
+    opacity:0.95;
+}
+
 /* FIX HTML2CANVAS */
 
 .leaflet-control-container{
@@ -1591,6 +1876,21 @@ body{
     background:#ffffff;
 }
 
+#exportWatermark{
+
+    position:absolute;
+
+    bottom:20px;
+
+    right:20px;
+
+    z-index:999999;
+
+    display:none;
+
+    pointer-events:none;
+}
+
 #exportWatermark img{
 
     width:220px;
@@ -1598,12 +1898,11 @@ body{
     height:auto;
 
     display:block;
+}
 
-    object-fit:contain;
+#exportWatermark{
 
-    display:block;
+    font-size:0 !important;
 
-    background:transparent !important;
-
-    image-rendering:auto;
+    line-height:0 !important;
 }
