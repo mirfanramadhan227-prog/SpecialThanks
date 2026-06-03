@@ -216,3 +216,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+backup/
+changelog/
+GeoJson_backup/
+
+temp_upload.xlsx
+data dummy.xlsx
+data_dummy.xlsx
+
+test_upload.py
