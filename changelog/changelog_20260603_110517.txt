@@ -1,0 +1,40 @@
+==================================================
+UPLOAD : 2026-06-03 11:05:17.997427
+==================================================
+
+Rows Lama : 141
+Rows Baru : 142
+Added Rows : 1
+Deleted Rows : 0
+
+CLIENT BARU
+------------------------------
+Tidak ada
+
+CLIENT DIHAPUS
+------------------------------
+Tidak ada
+
+COMMODITY BARU
+------------------------------
+Tidak ada
+
+COMMODITY DIHAPUS
+------------------------------
+Tidak ada
+
+KABUPATEN BARU
+------------------------------
+Tidak ada
+
+KABUPATEN DIHAPUS
+------------------------------
+Tidak ada
+
+DETAIL RECORD BARU
+------------------------------
+Fajar Borneo Mandiri | Batu Split | Medan
+
+DETAIL RECORD DIHAPUS
+------------------------------
+Tidak ada

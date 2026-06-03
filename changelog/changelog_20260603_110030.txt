@@ -1,0 +1,32 @@
+==================================================
+UPLOAD : 2026-06-03 11:00:30.606234
+==================================================
+
+Rows Lama : 141
+Rows Baru : 141
+Added Rows : 0
+Deleted Rows : 0
+
+CLIENT BARU
+------------------------------
+Tidak ada
+
+CLIENT DIHAPUS
+------------------------------
+Tidak ada
+
+COMMODITY BARU
+------------------------------
+Tidak ada
+
+COMMODITY DIHAPUS
+------------------------------
+Tidak ada
+
+KABUPATEN BARU
+------------------------------
+Tidak ada
+
+KABUPATEN DIHAPUS
+------------------------------
+Tidak ada
