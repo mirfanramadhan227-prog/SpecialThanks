@@ -211,12 +211,7 @@ def build_map(
     # ====================================
 
     client_list = sorted(df["Client"].dropna().unique())
-
-    client_options = ""
-
-    for client in client_list:
-        client_options += f'<option value="{client}">{client}</option>'
-
+    
     # ====================================
     # DROPDOWN FILTER COMMODITY
     # ====================================
@@ -240,11 +235,6 @@ def build_map(
         .unique()
 
     )
-
-    options = "".join([
-        f'<option value="{c}">{c}</option>'
-        for c in commodity_list
-    ])
 
     # ====================================
     # RAW CLIENT-COMMODITY RELATION
@@ -502,6 +492,21 @@ def build_map(
 
         <br><br>
 
+        <input
+        type="file"
+        id="excelUpload"
+        accept=".xlsx,.xls"
+        style="display:none;"
+        >
+
+        <button id="uploadBtn">
+            Upload Excel
+        </button>
+
+        <br><br>
+        
+        <br><br>
+
         <div class="exportWrapper">
 
         <button id="exportBtn">
@@ -509,17 +514,6 @@ def build_map(
         </button>
 
         <br><br>
-
-        <button id="uploadBtn">
-            Upload Excel
-        </button>
-
-        <input
-            type="file"
-            id="excelFile"
-            accept=".xlsx"
-            style="display:none;"
-        >
 
         </div>
 

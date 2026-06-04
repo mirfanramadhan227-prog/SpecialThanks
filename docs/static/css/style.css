@@ -95,6 +95,27 @@
     font-weight:600;
 }
 
+#uploadBtn{
+
+    width:120px;
+
+    padding:6px;
+
+    background:#1f6feb;
+
+    color:white;
+
+    border:none;
+
+    border-radius:5px;
+
+    cursor:pointer;
+
+    font-size:12px;
+
+    font-weight:600;
+}
+
 #floatingLegend{
 
     position:fixed;

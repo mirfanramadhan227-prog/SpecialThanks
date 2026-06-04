@@ -1627,3 +1627,82 @@ document
     });
 
 });
+
+document
+.getElementById("uploadBtn")
+?.addEventListener(
+    "click",
+    function(){
+
+        document
+        .getElementById(
+            "excelUpload"
+        )
+        .click();
+
+    }
+);
+
+document
+.getElementById("excelUpload")
+?.addEventListener(
+    "change",
+    async function(){
+
+        const file =
+            this.files[0];
+
+        if(!file){
+            return;
+        }
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "file",
+            file
+        );
+
+        try{
+
+            const response =
+                await fetch(
+                    "/upload_excel",
+                    {
+                        method:"POST",
+                        body:formData
+                    }
+                );
+
+            const result =
+                await response.json();
+
+            if(result.success){
+
+                alert(
+                    "Upload berhasil"
+                );
+
+                location.reload();
+
+            }else{
+
+                alert(
+                    result.message
+                );
+
+            }
+
+        }catch(err){
+
+            alert(
+                "Upload gagal"
+            );
+
+            console.error(err);
+
+        }
+
+    }
+);

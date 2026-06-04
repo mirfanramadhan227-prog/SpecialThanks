@@ -136,7 +136,12 @@ def load_data():
     # STATUS DATA
     # ====================================
 
-    gdf["ADA_DATA"] = gdf["Client"].notnull()
+    gdf["ADA_DATA"] = (
+        gdf["Client"]
+        .fillna("")
+        .str.strip()
+        .ne("")
+    )
 
     # ====================================
     # FILTER DATA STRING

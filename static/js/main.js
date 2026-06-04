@@ -126,7 +126,9 @@ function updateKPI(){
 
                         match =
                             match &&
-                            selectedClients.includes(client);
+                            selectedClients.some(x =>
+                            client.includes(x)
+                        )
 
                     }
 
@@ -1627,3 +1629,88 @@ document
     });
 
 });
+
+document
+.getElementById("uploadBtn")
+.addEventListener(
+    "click",
+    function(){
+
+        document
+        .getElementById(
+            "excelUpload"
+        )
+        .click();
+
+    }
+);
+
+document
+.getElementById("excelUpload")
+.addEventListener(
+    "change",
+    async function(){
+
+        const file =
+            this.files[0];
+
+        if(!file){
+            return;
+        }
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "file",
+            file
+        );
+
+        try{
+
+            showLoading();
+
+            const response =
+                await fetch(
+                    "/upload_excel",
+                    {
+                        method:"POST",
+                        body:formData
+                    }
+                );
+
+            const result =
+                await response.json();
+
+            hideLoading();
+
+            if(result.success){
+
+                alert(
+                    "Upload berhasil. Refresh dashboard."
+                );
+
+                location.reload();
+
+            }else{
+
+                alert(
+                    result.message
+                );
+
+            }
+
+        }catch(err){
+
+            hideLoading();
+
+            alert(
+                "Upload gagal"
+            );
+
+            console.error(err);
+
+        }
+
+    }
+);

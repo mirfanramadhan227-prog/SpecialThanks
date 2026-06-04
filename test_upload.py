@@ -1,9 +1,9 @@
-from modules.upload_manager import import_excel_to_postgres
+import pandas as pd
+from modules.database import engine
 
-rows = import_excel_to_postgres(
-    "data_backup.xlsx"
+df = pd.read_sql(
+    "SELECT COUNT(*) FROM client_project",
+    engine
 )
 
-print(
-    f"{rows} rows imported"
-)
+print(df)
